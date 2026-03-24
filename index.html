@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTAKAESHI — 歌返し</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Shippori+Mincho:wght@400;600;800&display=swap');
+
+  :root {
+    --washi: #f5f0e8;
+    --washi-dark: #ede5d4;
+    --ink: #1c1209;
+    --ink-light: #5a4a35;
+    --ink-faint: #a08060;
+    --vermilion: #c0392b;
+    --gold: #b8860b;
+    --shadow: rgba(28,18,9,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--washi);
+    font-family: 'Noto Serif JP', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 和紙テクスチャ */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* 背景の短冊（装飾） */
+  .bg-tanzaku {
+    position: fixed;
+    writing-mode: vertical-rl;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: rgba(160,128,96,0.13);
+    pointer-events: none;
+    z-index: 0;
+    line-height: 2;
+  }
+
+  .bg-tanzaku:nth-child(1) { top: 8%; right: 8%; }
+  .bg-tanzaku:nth-child(2) { top: 20%; left: 6%; font-size: 11px; }
+  .bg-tanzaku:nth-child(3) { bottom: 15%; right: 12%; font-size: 12px; }
+  .bg-tanzaku:nth-child(4) { bottom: 10%; left: 10%; font-size: 10px; }
+
+  /* メインコンテンツ */
+  .main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 40px 24px;
+    max-width: 420px;
+    width: 100%;
+  }
+
+  /* ロゴエリア */
+  .logo-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 48px;
+  }
+
+  .logo-en {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .logo-jp {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.4em;
+    color: var(--ink-faint);
+  }
+
+  /* 区切り線 */
+  .logo-rule {
+    width: 48px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 12px 0;
+  }
+
+  /* キャッチコピー */
+  .catchcopy {
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.2em;
+    text-align: center;
+    line-height: 2;
+    margin-bottom: 52px;
+    writing-mode: horizontal-tb;
+  }
+
+  /* ボタンエリア */
+  .btn-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  /* メインボタン：ルームをつくる */
+  .btn-create {
+    width: 100%;
+    background: var(--ink);
+    color: var(--washi);
+    border: none;
+    border-radius: 2px;
+    padding: 18px 0;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 16px;
+    letter-spacing: 0.3em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s, transform 0.1s;
+    box-shadow: 2px 3px 12px var(--shadow);
+  }
+
+  .btn-create::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--vermilion), var(--gold));
+  }
+
+  .btn-create:hover { background: #2d1f0e; }
+  .btn-create:active { transform: scale(0.98); }
+
+  /* サブボタン：ルームに入る */
+  .btn-join-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .btn-join-label {
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.15em;
+  }
+
+  .btn-join-input-row {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .room-input {
+    flex: 1;
+    background: white;
+    border: 1px solid rgba(160,128,96,0.35);
+    border-radius: 2px;
+    padding: 12px 14px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    color: var(--ink);
+    letter-spacing: 0.1em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .room-input::placeholder {
+    color: var(--ink-faint);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .room-input:focus {
+    border-color: rgba(192,57,43,0.4);
+  }
+
+  .btn-join {
+    background: white;
+    color: var(--ink);
+    border: 1px solid rgba(28,18,9,0.3);
+    border-radius: 2px;
+    padding: 12px 18px;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-join:hover { background: var(--washi-dark); }
+
+  /* 区切り */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 4px 0;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(160,128,96,0.2);
+  }
+
+  .divider span {
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+  }
+
+  /* ルーム生成後の表示 */
+  .room-created {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .room-created.show { display: flex; }
+
+  .room-created-label {
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.2em;
+  }
+
+  .room-url-box {
+    width: 100%;
+    background: white;
+    border: 1px solid rgba(184,134,11,0.3);
+    border-radius: 2px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 1px 2px 8px var(--shadow);
+    position: relative;
+  }
+
+  .room-url-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), rgba(184,134,11,0.2));
+  }
+
+  .room-url-text {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    color: var(--ink-light);
+    letter-spacing: 0.08em;
+    word-break: break-all;
+    flex: 1;
+  }
+
+  .copy-btn {
+    background: var(--washi-dark);
+    border: 1px solid rgba(160,128,96,0.3);
+    border-radius: 2px;
+    padding: 6px 12px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 11px;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover { background: #ddd5c4; }
+
+  .room-hint {
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    text-align: center;
+    line-height: 2;
+  }
+
+  .enter-btn {
+    width: 100%;
+    background: var(--vermilion);
+    color: white;
+    border: none;
+    border-radius: 2px;
+    padding: 14px 0;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    letter-spacing: 0.3em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .enter-btn:hover { background: #a93226; }
+  .enter-btn:active { transform: scale(0.98); }
+
+  /* フッター */
+  .footer {
+    position: fixed;
+    bottom: 20px;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- 背景の短冊（装飾） -->
+<div class="bg-tanzaku">
+  はるのよの<br>ゆめばかりなる<br>たまくらに
+</div>
+<div class="bg-tanzaku">
+  ちはやぶる<br>かみよもきかず<br>からくれない
+</div>
+<div class="bg-tanzaku">
+  あしびきの<br>やまどりのをの<br>しだりをの
+</div>
+<div class="bg-tanzaku">
+  たごのうらに<br>うちいでてみれば<br>しろたへの
+</div>
+
+<!-- メインコンテンツ -->
+<div class="main">
+
+  <!-- ロゴ -->
+  <div class="logo-area">
+    <div class="logo-en">UTAKAESHI</div>
+    <div class="logo-rule"></div>
+    <div class="logo-jp">う た か え し</div>
+  </div>
+
+  <div class="catchcopy">
+    うたかえし　ひとりひとりの<br>
+    こえがある　たんかでむすぶ　ふたりのじかん
+  </div>
+
+  <!-- ボタンエリア（初期表示） -->
+  <div class="btn-area" id="btnArea">
+    <button class="btn-create" onclick="createRoom()">
+      ルームをつくる
+    </button>
+
+    <div class="divider"><span>または</span></div>
+
+    <div class="btn-join-area">
+      <div class="btn-join-label">ルームに入る</div>
+      <div class="btn-join-input-row">
+        <input class="room-input" id="roomCodeInput" type="text" placeholder="ルームIDを入力">
+        <button class="btn-join" onclick="joinRoom()">入る</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ルーム生成後 -->
+  <div class="room-created" id="roomCreated">
+    <div class="room-created-label">ルームができました</div>
+    <div class="room-url-box">
+      <div class="room-url-text" id="roomUrlText">utakaeshi.pages.dev/room/abc123</div>
+      <button class="copy-btn" onclick="copyUrl()" id="copyBtn">コピー</button>
+    </div>
+    <div class="room-hint">
+      このURLを相手に送ってください<br>
+      ふたりそろったら歌がはじまります
+    </div>
+    <button class="enter-btn" onclick="enterRoom()">このルームに入る</button>
+  </div>
+
+</div>
+
+<div class="footer">© 2025 UTAKAESHI</div>
+
+<script>
+  function generateId() {
+    var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    var id = '';
+    for (var i = 0; i < 6; i++) {
+      id += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return id;
+  }
+
+  var currentRoomId = '';
+
+  function createRoom() {
+    currentRoomId = generateId();
+    var url = 'utakaeshi.pages.dev/room/' + currentRoomId;
+    document.getElementById('roomUrlText').textContent = url;
+    document.getElementById('btnArea').style.display = 'none';
+    document.getElementById('roomCreated').classList.add('show');
+  }
+
+  function copyUrl() {
+    var url = document.getElementById('roomUrlText').textContent;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+    }
+    var btn = document.getElementById('copyBtn');
+    btn.textContent = 'コピーずみ';
+    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+  }
+
+  function joinRoom() {
+    var code = document.getElementById('roomCodeInput').value.trim();
+    if (!code) { alert('ルームIDを入力してください'); return; }
+    alert('ルーム「' + code + '」に入ります（モック）');
+  }
+
+  function enterRoom() {
+    alert('ルーム「' + currentRoomId + '」に入ります（モック）');
+  }
+</script>
+</body>
+</html>
