@@ -412,9 +412,12 @@
 <!-- ヘッダー -->
 <div class="header">
   <div class="app-title">UTAKAESHI<small>歌返し</small></div>
-  <div class="room-badge">
-    <strong>はるの間</strong>
-    2人 · 3往復
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="room-badge">
+      <strong id="roomIdLabel">...</strong>
+      のま
+    </div>
+    <button onclick="leaveRoom()" style="background:none;border:1px solid rgba(160,128,96,0.4);border-radius:2px;padding:5px 10px;font-family:'Noto Serif JP',serif;font-size:10px;color:var(--ink-faint);letter-spacing:0.1em;cursor:pointer;">でる</button>
   </div>
 </div>
 
@@ -436,6 +439,9 @@
 <!-- 入力エリア -->
 <div class="input-area">
   <div class="input-label">一首詠む</div>
+  <div style="font-size:9px;color:var(--ink-faint);letter-spacing:0.1em;margin-bottom:8px;margin-top:-4px;">
+    ひらがな・ながおん（ー）・！・？のみ　／　五・七・五・七・七
+  </div>
   <div class="ku-inputs">
     <div class="ku-col">
       <div class="ku-label">五</div>
@@ -479,7 +485,7 @@
 
   // ひらがな・長音・句読点のみ許容
   function filterHiragana(value) {
-    return value.replace(/[^\u3041-\u3096\u30FC]/g, '');
+    return value.replace(/[^\u3041-\u3096\u30FC！？]/g, '');
   }
 
   function updateCount(input, target, counterId) {
@@ -645,6 +651,17 @@
   // 3秒ごとに新着チェック
   loadMessages();
   setInterval(loadMessages, 3000);
+
+  // ルームID表示
+  var roomLabel = document.getElementById('roomIdLabel');
+  if (roomLabel) roomLabel.textContent = ROOM_ID;
+
+  // ルームを出る
+  function leaveRoom() {
+    if (confirm('ルームをでますか？')) {
+      window.location.href = 'index.html';
+    }
+  }
 
   // 初期スクロール
   var ca = document.getElementById('chatArea');
