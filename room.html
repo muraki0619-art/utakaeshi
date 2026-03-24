@@ -421,103 +421,14 @@
 <!-- チャットエリア（縦書き・横スクロール） -->
 <div class="chat-area" id="chatArea">
 
-  <!-- 入力中インジケーター（最新＝右端） -->
-  <div class="typing-card" id="typingIndicator">
+  <!-- 入力中インジケーター -->
+  <div class="typing-card" id="typingIndicator" style="display:none;">
     <div class="typing-tanzaku">
       <div class="typing-dots">
         <span></span><span></span><span></span>
       </div>
     </div>
-    <div class="typing-label">あやめ</div>
-  </div>
-
-  <!-- 往復ペア3：最新 -->
-  <div class="exchange-pair">
-    <!-- 自分（左＝後から詠んだ） -->
-    <div class="tanka-card mine">
-      <div class="sender-name">たろう</div>
-      <div class="tanzaku">
-        <span class="ku">しんじると</span>
-        <span class="ku">いえるつよさが</span>
-        <span class="ku-break"></span>
-        <span class="ku">うらやましく</span>
-        <span class="ku">わたしはきょうも</span>
-        <span class="ku">そらをみあげる</span>
-      </div>
-      <div class="timestamp">11:08</div>
-    </div>
-    <!-- 相手（右＝先に詠んだ） -->
-    <div class="tanka-card theirs">
-      <div class="sender-name">あやめ</div>
-      <div class="tanzaku">
-        <span class="ku">うめのかに</span>
-        <span class="ku">さそわれあゆむ</span>
-        <span class="ku-break"></span>
-        <span class="ku">みちのはて</span>
-        <span class="ku">きみのえがおが</span>
-        <span class="ku">まつとしんじて</span>
-      </div>
-      <div class="timestamp">10:51</div>
-    </div>
-  </div>
-
-  <!-- 往復ペア2 -->
-  <div class="exchange-pair">
-    <div class="tanka-card theirs">
-      <div class="sender-name">あやめ</div>
-      <div class="tanzaku">
-        <span class="ku">はるかぜに</span>
-        <span class="ku">そでひるがえし</span>
-        <span class="ku-break"></span>
-        <span class="ku">たちにけり</span>
-        <span class="ku">きみまつさかの</span>
-        <span class="ku">うめのかのなか</span>
-      </div>
-      <div class="timestamp">10:24</div>
-    </div>
-    <div class="tanka-card mine">
-      <div class="sender-name">たろう</div>
-      <div class="tanzaku">
-        <span class="ku">さくらちる</span>
-        <span class="ku">かわのほとりで</span>
-        <span class="ku-break"></span>
-        <span class="ku">たたずめば</span>
-        <span class="ku">きみのこえする</span>
-        <span class="ku">きがしてならぬ</span>
-      </div>
-      <div class="timestamp">10:10</div>
-    </div>
-  </div>
-
-  <!-- 日付区切り -->
-  <div class="date-divider">むつき じゅうごにち</div>
-
-  <!-- 往復ペア1（最初） -->
-  <div class="exchange-pair">
-    <div class="tanka-card mine">
-      <div class="sender-name">たろう</div>
-      <div class="tanzaku">
-        <span class="ku">ふゆのよに</span>
-        <span class="ku">ほしをかぞえて</span>
-        <span class="ku-break"></span>
-        <span class="ku">ねむれずに</span>
-        <span class="ku">きみのなまえを</span>
-        <span class="ku">こころでよんだ</span>
-      </div>
-      <div class="timestamp">09:55</div>
-    </div>
-    <div class="tanka-card theirs">
-      <div class="sender-name">あやめ</div>
-      <div class="tanzaku">
-        <span class="ku">ほしぞらに</span>
-        <span class="ku">きみのこえきく</span>
-        <span class="ku-break"></span>
-        <span class="ku">ゆめのなか</span>
-        <span class="ku">さめてもまだそこ</span>
-        <span class="ku">にいるきがして</span>
-      </div>
-      <div class="timestamp">09:42</div>
-    </div>
+    <div class="typing-label" id="typingLabel"></div>
   </div>
 
 </div>
@@ -636,7 +547,7 @@
   var ROOM_ID = params.get('room') || 'test';
 
   // 自分の名前（セッション内で固定）
-  var MY_NAME = 'ひと' + Math.floor(Math.random() * 9000 + 1000);
+  var MY_NAME = decodeURIComponent(params.get('name') || 'ひと' + Math.floor(Math.random() * 9000 + 1000));
 
   // 既読メッセージIDを管理
   var loadedIds = {};

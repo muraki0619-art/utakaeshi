@@ -382,6 +382,10 @@
 
   <!-- ボタンエリア（初期表示） -->
   <div class="btn-area" id="btnArea">
+    <div class="btn-join-area">
+      <div class="btn-join-label">おなまえ</div>
+      <input class="room-input" id="nameInput" type="text" placeholder="ひらがなでどうぞ" maxlength="10">
+    </div>
     <button class="btn-create" onclick="createRoom()">
       ルームをつくる
     </button>
@@ -443,13 +447,21 @@
     });
   }
 
+  function getName() {
+    var name = document.getElementById('nameInput').value.trim();
+    if (!name) { alert('おなまえを入力してください'); return null; }
+    return name;
+  }
+
   function createRoom() {
+    var name = getName();
+    if (!name) return;
     var id = generateId();
     supabaseFetch('rooms', 'POST', { id: id })
       .then(function(res) {
         if (res.ok || res.status === 201) {
           currentRoomId = id;
-          var url = 'https://utakaeshi.pages.dev/room.html?room=' + id;
+          var url = 'https://utakaeshi.pages.dev/room.html?room=' + id + '&name=' + encodeURIComponent(name);
           document.getElementById('roomUrlText').textContent = url;
           document.getElementById('btnArea').style.display = 'none';
           document.getElementById('roomCreated').classList.add('show');
@@ -471,13 +483,17 @@
   }
 
   function joinRoom() {
+    var name = getName();
+    if (!name) return;
     var code = document.getElementById('roomCodeInput').value.trim();
     if (!code) { alert('ルームIDを入力してください'); return; }
-    window.location.href = 'room.html?room=' + code;
+    window.location.href = 'room.html?room=' + code + '&name=' + encodeURIComponent(name);
   }
 
   function enterRoom() {
-    window.location.href = 'room.html?room=' + currentRoomId;
+    var name = getName();
+    if (!name) return;
+    window.location.href = 'room.html?room=' + currentRoomId + '&name=' + encodeURIComponent(name);
   }
 </script>
 </body>
