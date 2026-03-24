@@ -416,6 +416,9 @@
 <div class="footer">© 2025 UTAKAESHI</div>
 
 <script>
+  var SUPABASE_URL = 'https://ziuielnqreaeznupokwz.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppdWllbG5xcmVhZXpudXBva3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMDA3MDksImV4cCI6MjA4OTg3NjcwOX0.rdujY6oE6UW4GceTzgPSIPEtAxikElSm08wPsg5wGAY';
+
   function generateId() {
     var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     var id = '';
@@ -427,12 +430,34 @@
 
   var currentRoomId = '';
 
+  function supabaseFetch(path, method, body) {
+    return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      method: method || 'GET',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+  }
+
   function createRoom() {
-    currentRoomId = generateId();
-    var url = 'utakaeshi.pages.dev/room/' + currentRoomId;
-    document.getElementById('roomUrlText').textContent = url;
-    document.getElementById('btnArea').style.display = 'none';
-    document.getElementById('roomCreated').classList.add('show');
+    var id = generateId();
+    supabaseFetch('rooms', 'POST', { id: id })
+      .then(function(res) {
+        if (res.ok || res.status === 201) {
+          currentRoomId = id;
+          var url = 'https://utakaeshi.pages.dev/room.html?room=' + id;
+          document.getElementById('roomUrlText').textContent = url;
+          document.getElementById('btnArea').style.display = 'none';
+          document.getElementById('roomCreated').classList.add('show');
+        } else {
+          alert('ルームの作成に失敗しました');
+        }
+      })
+      .catch(function() { alert('通信エラーが発生しました'); });
   }
 
   function copyUrl() {
@@ -448,11 +473,11 @@
   function joinRoom() {
     var code = document.getElementById('roomCodeInput').value.trim();
     if (!code) { alert('ルームIDを入力してください'); return; }
-    alert('ルーム「' + code + '」に入ります（モック）');
+    window.location.href = 'room.html?room=' + code;
   }
 
   function enterRoom() {
-    alert('ルーム「' + currentRoomId + '」に入ります（モック）');
+    window.location.href = 'room.html?room=' + currentRoomId;
   }
 </script>
 </body>

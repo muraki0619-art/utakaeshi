@@ -628,6 +628,32 @@
     document.getElementById('totalCount').textContent = total + ' / 31文字';
   }
 
+  var SUPABASE_URL = 'https://ziuielnqreaeznupokwz.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppdWllbG5xcmVhZXpudXBva3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMDA3MDksImV4cCI6MjA4OTg3NjcwOX0.rdujY6oE6UW4GceTzgPSIPEtAxikElSm08wPsg5wGAY';
+
+  // URLからルームIDを取得
+  var params = new URLSearchParams(window.location.search);
+  var ROOM_ID = params.get('room') || 'test';
+
+  // 自分の名前（セッション内で固定）
+  var MY_NAME = 'ひと' + Math.floor(Math.random() * 9000 + 1000);
+
+  // 既読メッセージIDを管理
+  var loadedIds = {};
+
+  function supabaseFetch(path, method, body) {
+    return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      method: method || 'GET',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=minimal' : ''
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+  }
+
   function makeTanzaku(vals, sender, isMe, time) {
     var card = document.createElement('div');
     card.className = 'tanka-card ' + (isMe ? 'mine' : 'theirs');
@@ -645,6 +671,36 @@
     return card;
   }
 
+  function addMessageToChat(msg) {
+    if (loadedIds[msg.id]) return;
+    loadedIds[msg.id] = true;
+
+    var isMe = (msg.sender === MY_NAME);
+    var vals = [msg.ku1, msg.ku2, msg.ku3, msg.ku4, msg.ku5];
+    var time = new Date(msg.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
+    var area = document.getElementById('chatArea');
+    var indicator = document.getElementById('typingIndicator');
+
+    var card = makeTanzaku(vals, msg.sender, isMe, time);
+    var pair = document.createElement('div');
+    pair.className = 'exchange-pair';
+    pair.appendChild(card);
+    indicator.insertAdjacentElement('afterend', pair);
+
+    area.scrollLeft = 0;
+  }
+
+  function loadMessages() {
+    supabaseFetch('messages?room_id=eq.' + ROOM_ID + '&order=created_at.asc')
+      .then(function(res) { return res.json(); })
+      .then(function(msgs) {
+        for (var i = 0; i < msgs.length; i++) {
+          addMessageToChat(msgs[i]);
+        }
+      });
+  }
+
   function sendTanka() {
     var vals = [];
     for (var i = 1; i <= 5; i++) {
@@ -656,31 +712,30 @@
       vals.push(v);
     }
 
-    var area = document.getElementById('chatArea');
-    var indicator = document.getElementById('typingIndicator');
-
-    // 自分の歌カードを作る
-    var myCard = makeTanzaku(vals, 'たろう', true, 'たった今');
-
-    // ペアとしてラップ
-    var pair = document.createElement('div');
-    pair.className = 'exchange-pair';
-    pair.appendChild(myCard);
-
-    indicator.insertAdjacentElement('afterend', pair);
-
-    // クリア
-    for (var j = 1; j <= 5; j++) {
-      document.getElementById('ku' + j).value = '';
-      document.getElementById('c' + j).textContent = '0';
-      document.getElementById('c' + j).className = 'ku-count ok';
-    }
-    updateTotal();
-
-    area.scrollLeft = 0;
+    supabaseFetch('messages', 'POST', {
+      room_id: ROOM_ID,
+      sender: MY_NAME,
+      ku1: vals[0], ku2: vals[1], ku3: vals[2], ku4: vals[3], ku5: vals[4]
+    }).then(function(res) {
+      if (res.ok || res.status === 201) {
+        for (var j = 1; j <= 5; j++) {
+          document.getElementById('ku' + j).value = '';
+          document.getElementById('c' + j).textContent = '0';
+          document.getElementById('c' + j).className = 'ku-count ok';
+        }
+        updateTotal();
+        loadMessages();
+      } else {
+        alert('送信に失敗しました');
+      }
+    });
   }
 
-  // 初期：右端（最新）へ
+  // 3秒ごとに新着チェック
+  loadMessages();
+  setInterval(loadMessages, 3000);
+
+  // 初期スクロール
   var ca = document.getElementById('chatArea');
   ca.scrollLeft = 0;
 </script>
