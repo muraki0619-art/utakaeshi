@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- 短冊の本体 -->
+  <rect x="6" y="2" width="20" height="26" rx="2" ry="2" fill="#fffbf4" stroke="#b8860b" stroke-width="1"/>
+  <!-- 天の朱帯 -->
+  <rect x="6" y="2" width="20" height="3" rx="2" ry="2" fill="#c0392b"/>
+  <!-- 縦線3本 -->
+  <line x1="12" y1="7" x2="12" y2="26" stroke="#c0392b" stroke-width="0.8" opacity="0.4"/>
+  <line x1="16" y1="7" x2="16" y2="26" stroke="#c0392b" stroke-width="0.8" opacity="0.4"/>
+  <line x1="20" y1="7" x2="20" y2="26" stroke="#c0392b" stroke-width="0.8" opacity="0.4"/>
+  <!-- 先端の丸み（短冊の下） -->
+  <rect x="6" y="26" width="20" height="2" rx="2" ry="2" fill="#fffbf4" stroke="#b8860b" stroke-width="1"/>
+</svg>
