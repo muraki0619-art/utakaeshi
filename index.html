@@ -78,7 +78,7 @@
     flex-direction: column;
     align-items: center;
     gap: 0;
-    padding: 40px 24px;
+    padding: 40px 24px 80px;
     max-width: 420px;
     width: 100%;
   }
@@ -350,11 +350,40 @@
   /* フッター */
   .footer {
     position: fixed;
-    bottom: 20px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 24px 14px;
+    background: rgba(245,240,232,0.95);
+    border-top: 1px solid rgba(160,128,96,0.12);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .footer-links a {
+    font-size: 10px;
+    color: var(--ink-faint);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.15s;
+  }
+
+  .footer-links a:hover { color: var(--ink-light); }
+
+  .footer-copy {
     font-size: 10px;
     color: var(--ink-faint);
     letter-spacing: 0.1em;
-    z-index: 1;
   }
 </style>
 </head>
@@ -425,7 +454,15 @@
 
 </div>
 
-<div class="footer">© 2025 SuguriMori / 979works</div>
+<div class="footer">
+  <div class="footer-links">
+    <a href="privacy.html">プライバシーポリシー</a>
+    <a href="tokusho.html">特定商取引法に基づく表記</a>
+    <a href="terms.html">利用規約</a>
+    <a href="https://forms.gle/iNBMopAn91qZBV3AA" target="_blank" rel="noopener noreferrer">お問い合わせ</a>
+  </div>
+  <div class="footer-copy">© 2025 SuguriMori / 979works</div>
+</div>
 
 <script>
   var SUPABASE_URL = 'https://ziuielnqreaeznupokwz.supabase.co';
